@@ -1,0 +1,38 @@
+{
+  "name": "didbot/didbot-api",
+  "description": "API for didbot.com",
+  "homepage": "https://github.com/didbot/didbot-api",
+  "authors": [
+    {
+      "name": "Ben Bjurstrom",
+      "email": "ben@jelled.com"
+    }
+  ],
+  "keywords": [
+    "didbot",
+    "api",
+    "task",
+    "tracker",
+    "laravel"
+  ],
+  "license": "MIT",
+  "require": {
+    "php": ">=7.0",
+    "laravel/passport": "^1.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^5.0",
+    "orchestra/testbench": "~3.3.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Didbot\\DidbotApi\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Didbot\\DidbotApi\\Test\\": "tests"
+    }
+  },
+  "minimum-stability": "stable"
+}
