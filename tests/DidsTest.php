@@ -3,6 +3,7 @@ namespace Didbot\DidbotApi\Test;
 
 use \Laravel\Passport\Token;
 use \Didbot\DidbotApi\Models\Did;
+use \Didbot\DidbotApi\Models\Tag;
 use \Didbot\DidbotApi\Test\Models\User;
 
 class GetDidsTest extends TestCase
@@ -46,21 +47,25 @@ class GetDidsTest extends TestCase
 
         $user  = factory(User::class)->create();
         $token = $user->createToken('Test Token')->accessToken;
-        $text  = str_random(10);
 
-        $this->postJson('/dids', ['text' => $text], [
+        $tag1  = factory(Tag::class)->create();
+        $tag2  = factory(Tag::class)->create();
+
+        $text = str_random(10);
+
+        $this->postJson('/dids', [
+                'text' => $text,
+                'tags' => [$tag1->id, $tag2->id]
+        ], [
                 'Authorization' => 'Bearer ' . $token,
                 'Accept'        => 'application/json',
                 'content-type'  => 'application/json',
         ])->seeStatusCode(200);
 
-        $this->get('/dids', [
-                'Authorization' => 'Bearer ' . $token,
-                'Accept' => 'application/json',
-                'content-type' => 'application/json',
-        ])->seeJson([
-                'text' => $text
-        ]);
+        $this->seeInDatabase('dids', ['user_id'=>1, 'text'=>$text]);
+        $did = Did::where('text', $text)->firstOrFail();
+        $this->seeInDatabase('did_tag', ['tag_id'=>$tag1->id, 'did_id'=>$did->id]);
+        $this->seeInDatabase('did_tag', ['tag_id'=>$tag2->id, 'did_id'=>$did->id]);
 
     }
 
@@ -70,9 +75,12 @@ class GetDidsTest extends TestCase
     public function it_tests_the_delete_dids_endpoint()
     {
 
-        $user  = factory(User::class)->create();
-        $token = $user->createToken('Test Token')->accessToken;
-        $did = factory(Did::class)->create(['user_id' => 1]);
+        $user   = factory(User::class)->create();
+        $token  = $user->createToken('Test Token')->accessToken;
+        $did    = factory(Did::class)->create(['user_id' => 1]);
+        $tag    = factory(Tag::class)->create(['user_id' => 1]);
+
+        $did->tags()->attach([$tag->id]);
 
         $this->delete('/dids/' . $did->id, [],
         [
@@ -81,7 +89,11 @@ class GetDidsTest extends TestCase
                 'content-type' => 'application/json',
         ]);
 
+
         $this->dontSeeInDatabase('dids',['id' => $did->id]);
+
+        // Verify and did_tag relations were also deleted
+        $this->dontSeeInDatabase('did_tag',['did_id' => $did->id]);
 
     }
 
@@ -95,13 +107,17 @@ class GetDidsTest extends TestCase
         $token        = $user->createToken('Test Token')->accessToken;
         $user_did     = factory(Did::class)->create(['user_id' => $user->id]);
         $not_user_did = factory(Did::class)->create(['user_id' => ($user->id + 1)]);
+        $tag          = factory(Tag::class)->create();
+        $user_did->tags()->attach([$tag->id]);
 
         $this->get('/dids', [
                 'Authorization' => 'Bearer ' . $token,
                 'Accept' => 'application/json',
                 'content-type' => 'application/json',
         ])->seeJson([
-                'text' => $user_did->text
+                'text' => $user_did->text,
+        ])->seeJson([
+                'text' => $tag->text
         ])->dontSeeJson([
                 'text' => $not_user_did->text
         ]);

@@ -1,6 +1,7 @@
 <?php
 
 use Didbot\DidbotApi\Models\Did;
+use Didbot\DidbotApi\Models\Tag;
 use Didbot\DidbotApi\Test\Models\User;
 
 /*
@@ -30,5 +31,12 @@ $factory->define(Did::class, function (Faker\Generator $faker) {
     return [
         'user_id' => 1,
         'text' => $faker->realText($maxNbChars = 75, $indexSize = 2)
+    ];
+});
+
+$factory->define(Tag::class, function (Faker\Generator $faker) {
+    return [
+            'user_id' => 1,
+            'text' => $faker->text($maxNbChars = 15)
     ];
 });

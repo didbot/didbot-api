@@ -9,4 +9,12 @@ class Did extends Model
     {
         return Carbon::createFromFormat('Y-m-d H:i:s', $value)->diffForHumans(Carbon::now(), TRUE, TRUE, 3);
     }
+
+    /**
+     * The tags that belong to the did.
+     */
+    public function tags()
+    {
+        return $this->belongsToMany('Didbot\DidbotApi\Models\Tag');
+    }
 }

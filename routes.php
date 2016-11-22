@@ -9,6 +9,12 @@ Route::group([
     // Did routes
     Route::get('/dids',            'DidsController@getDids');
     Route::post('/dids',           'DidsController@postDid');
-    Route::delete('/dids/{did_id}', 'DidsController@deleteDid');
+    Route::delete('/dids/{id}', 'DidsController@deleteDid');
+
+    // Tag routes
+    Route::get('/tags', 'TagsController@getTags');
+    Route::post('/tags', 'TagsController@postTag');
+    Route::patch('/tags/{id}', 'TagsController@patchTag');
+    Route::delete('/tags/{id}', 'TagsController@deleteTag');
 
 });

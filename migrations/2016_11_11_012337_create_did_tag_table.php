@@ -3,7 +3,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateDidTagsTable extends Migration
+class CreateDidTagTable extends Migration
 {
     /**
      * Run the migrations.
@@ -11,7 +11,7 @@ class CreateDidTagsTable extends Migration
      */
     public function up()
     {
-        Schema::create('did_tags', function (Blueprint $table) {
+        Schema::create('did_tag', function (Blueprint $table) {
             $table->integer('did_id');
             $table->integer('tag_id');
             $table->timestamps();
@@ -24,6 +24,6 @@ class CreateDidTagsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('did_tags');
+        Schema::dropIfExists('did_tag');
     }
 }
