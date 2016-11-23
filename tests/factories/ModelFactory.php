@@ -30,7 +30,7 @@ $factory->define(User::class, function (Faker\Generator $faker) {
 $factory->define(Did::class, function (Faker\Generator $faker) {
     return [
         'user_id' => 1,
-        'text' => $faker->realText($maxNbChars = 75, $indexSize = 2)
+        'text' => str_random(16)
     ];
 });
 

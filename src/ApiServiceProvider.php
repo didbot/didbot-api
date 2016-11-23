@@ -28,5 +28,6 @@ class ApiServiceProvider extends ServiceProvider
     public function register()
     {
         App::register(\Laravel\Passport\PassportServiceProvider::class);
+        App::register(\Spatie\Fractal\FractalServiceProvider::class);
     }
 }

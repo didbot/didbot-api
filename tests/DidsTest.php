@@ -123,4 +123,72 @@ class GetDidsTest extends TestCase
         ]);
 
     }
+
+    /**
+     * @test
+     */
+    public function it_tests_dids_cursor()
+    {
+
+        $user = factory(User::class)->create();
+        $token = $user->createToken('Test Token')->accessToken;
+        $dids = factory(Did::class, 50)->create(['user_id' => $user->id]);
+
+        $response = $this->get('/dids',
+            [
+                'Authorization' => 'Bearer ' . $token,
+                'Accept' => 'application/json',
+                'content-type' => 'application/json',
+            ])
+            ->seeJson(['text' => $dids[49]->text])
+            ->seeJson(['text' => $dids[30]->text])
+            ->dontSeeJson(['text' => $dids[29]->text])
+            ->seeJsonContains([
+                'cursor' => [
+                   'count' => 20,
+                   'current' => null,
+                   'next' => 31,
+                   'prev' => null
+            ]])->decodeResponseJson();
+
+        $response = $this->get('/dids?cursor=' . $response['meta']['cursor']['next'],
+                [
+                        'Authorization' => 'Bearer ' . $token,
+                        'Accept' => 'application/json',
+                        'content-type' => 'application/json',
+                ])
+             ->seeJson(['text' => $dids[29]->text])
+             ->seeJson(['text' => $dids[10]->text])
+             ->dontSeeJson(['text' => $dids[9]->text])
+             ->seeJsonContains([
+                     'cursor' => [
+                             'count' => 20,
+                             'current' => 31,
+                             'next' => 11,
+                             'prev' => null
+                     ]
+             ])
+             ->decodeResponseJson();
+
+        $this->get('/dids?'
+                .'cursor=' . $response['meta']['cursor']['next']
+                .'&prev='   . $response['meta']['cursor']['current'],
+                [
+                        'Authorization' => 'Bearer ' . $token,
+                        'Accept' => 'application/json',
+                        'content-type' => 'application/json',
+                ])
+             ->seeJson(['text' => $dids[9]->text])
+             ->seeJson(['text' => $dids[0]->text])
+             ->dontSeeJson(['text' => $dids[10]->text])
+             ->seeJsonContains([
+                     'cursor' => [
+                             'count' => 10,
+                             'current' => 11,
+                             'next' => 1,
+                             'prev' => 31
+                     ]
+             ])
+             ->decodeResponseJson();
+    }
 }
