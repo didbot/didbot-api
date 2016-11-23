@@ -4,7 +4,7 @@ namespace Didbot\DidbotApi\Controllers;
 
 use Illuminate\Http\Request;
 use Didbot\DidbotApi\Models\Did;
-use League\Fractal\Pagination\Cursor;
+use Didbot\DidbotApi\CustomCursor as Cursor;
 use Didbot\DidbotApi\Transformers\DidTransformer;
 
 class DidsController extends Controller
@@ -15,19 +15,14 @@ class DidsController extends Controller
     public function getDids(Request $request)
     {
 
-        $currentCursor = ($request->cursor) ? (int)$request->cursor : null;
-        $previousCursor = ($request->prev) ? (int)$request->prev : null;
-
         $dids = $request->user()->dids()->with('tags')->orderBy('id','DESC')->take(20);
-        if($currentCursor) $dids->where('id', '<', $currentCursor);
+        if($request->cursor) $dids->where('id', '<', $request->cursor);
         $dids = $dids->get();
 
-        // Prevent error if no results
-        $nextCursor = (count($dids)) ? $dids->last()->id : null;
 
         return fractal()
                 ->collection($dids, new DidTransformer())
-                ->withCursor(new Cursor($currentCursor, $previousCursor, $nextCursor, count($dids)))
+                ->withCursor(new Cursor($request->cursor, $request->prev, $dids))
                 ->toJson();
     }
 
