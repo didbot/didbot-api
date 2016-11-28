@@ -8,6 +8,56 @@ use \Didbot\DidbotApi\Test\Models\User;
 
 class GetDidsTest extends TestCase
 {
+
+    /**
+     * @test
+     */
+    public function it_tests_the_get_dids_endpoint()
+    {
+        $user = factory(User::class)->create();
+        $token = $user->createToken('Test Token')->accessToken;
+        $did = factory(Did::class)->create(['user_id' => $user->id]);
+        $tag = factory(Tag::class)->create();
+        $did->tags()->attach([$tag->id]);
+
+        $this->get('/dids',
+                [
+                    'Authorization' => 'Bearer ' . $token,
+                    'Accept' => 'application/json',
+                    'content-type' => 'application/json',
+                ])
+        ->seeJsonEquals([
+            'data' => [
+                0 => [
+                    'id' => $did->id,
+                    'text' => $did->text,
+                    'tags' => [
+                        'data' => [
+                            0 => [
+                                'id' => $tag->id,
+                                'text' => $tag->text,
+                            ],
+                        ],
+                    ],
+                    'client' => [
+                        'data' => [
+                            'id' => 1,
+                            'name' => ' Personal Access Client',
+                        ],
+                    ],
+                ],
+            ],
+            'meta' => [
+                'cursor' => [
+                    'current' => NULL,
+                    'prev' => NULL,
+                    'next' => 1,
+                    'count' => 1,
+                ],
+            ],
+        ]);
+    }
+
     /**
      * @test
      */

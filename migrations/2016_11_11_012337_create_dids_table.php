@@ -16,7 +16,7 @@ class CreateDidsTable extends Migration
             $table->integer('user_id');
             $table->string('text');
             $table->string('geo')->nullable();
-            $table->integer('integration_id')->nullable();
+            $table->integer('client_id');
             $table->timestamps();
         });
     }

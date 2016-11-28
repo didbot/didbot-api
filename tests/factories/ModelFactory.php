@@ -30,7 +30,8 @@ $factory->define(User::class, function (Faker\Generator $faker) {
 $factory->define(Did::class, function (Faker\Generator $faker) {
     return [
         'user_id' => 1,
-        'text' => str_random(16)
+        'text' => str_random(16),
+        'client_id' => 1
     ];
 });
 

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Didbot\DidbotApi\Models\Did;
 use Didbot\DidbotApi\CustomCursor as Cursor;
 use Didbot\DidbotApi\Transformers\DidTransformer;
+use Laravel\Passport\Passport;
 
 class DidsController extends Controller
 {
@@ -15,7 +16,7 @@ class DidsController extends Controller
     public function getDids(Request $request)
     {
 
-        $dids = $request->user()->dids()->with('tags')->orderBy('id','DESC')->take(20);
+        $dids = $request->user()->dids()->with(['tags','client'])->orderBy('id','DESC')->take(20);
         if($request->cursor) $dids->where('id', '<', $request->cursor);
         $dids = $dids->get();
 
@@ -31,12 +32,14 @@ class DidsController extends Controller
      */
     public function postDid(Request $request)
     {
+
         $this->validate($request, ['text' => 'required|max:255']);
         $this->validate($request, ['tags' => 'array']);
 
         $did = new Did();
         $did->user_id = $request->user()->id;
         $did->text = $request->text;
+        $did->client_id = $request->user()->token()->client;
         $did->save();
 
         if(is_array($request->tags) && !empty($request->tags)) $did->tags()->attach($request->tags);

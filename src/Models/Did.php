@@ -17,4 +17,12 @@ class Did extends Model
     {
         return $this->belongsToMany('Didbot\DidbotApi\Models\Tag');
     }
+
+    /**
+     * The client that belongs to the did.
+     */
+    public function client()
+    {
+        return $this->belongsTo('Laravel\Passport\Client');
+    }
 }
