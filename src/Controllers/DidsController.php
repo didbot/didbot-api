@@ -12,14 +12,19 @@ class DidsController extends Controller
 {
     /**
      * @param Request $request
+     * @param Did $did
+     *
+     * @return \Illuminate\Http\Response
      */
-    public function getDids(Request $request)
+    public function getDids(Request $request, Did $did)
     {
 
-        $dids = $request->user()->dids()->with(['tags','client'])->orderBy('id','DESC')->take(20);
-        if($request->cursor) $dids->where('id', '<', $request->cursor);
-        $dids = $dids->get();
-
+        $dids = $did->getDids(
+                    $request->user()->id,
+                    $request->tag_id,
+                    $request->client_id,
+                    $request->cursor
+                )->with(['tags', 'client'])->orderBy('dids.id', 'DESC')->limit(20)->get();
 
         return fractal()
                 ->collection($dids, new DidTransformer())

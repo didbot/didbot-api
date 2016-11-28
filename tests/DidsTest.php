@@ -61,6 +61,63 @@ class GetDidsTest extends TestCase
     /**
      * @test
      */
+    public function it_tests_the_get_dids_endpoint_by_tag_id()
+    {
+        $user = factory(User::class)->create();
+        $token = $user->createToken('Test Token')->accessToken;
+
+        $did1 = factory(Did::class)->create(['user_id' => $user->id]);
+        $did2 = factory(Did::class)->create(['user_id' => $user->id]);
+        $did3 = factory(Did::class)->create(['user_id' => $user->id + 1]);
+
+        $tag1 = factory(Tag::class)->create();
+        $tag2 = factory(Tag::class)->create();
+
+        $did1->tags()->attach([$tag1->id]);
+        $did2->tags()->attach([$tag2->id]);
+        $did3->tags()->attach([$tag1->id]);
+
+        $this->get('/dids?tag_id=' . $tag1->id,
+                [
+                    'Authorization' => 'Bearer ' . $token,
+                    'Accept' => 'application/json',
+                    'content-type' => 'application/json',
+                ])
+        ->seeJson([
+                'text' => $did1->text
+        ])->dontSeeJson([
+                'text' => $did2->text
+        ])->dontSeeJson([
+                'text' => $did3->text
+        ]);;
+    }
+
+    /**
+     * @test
+     */
+    public function it_tests_the_get_dids_endpoint_by_client_id()
+    {
+        $user = factory(User::class)->create();
+        $token = $user->createToken('Test Token')->accessToken;
+
+        $did1 = factory(Did::class)->create(['user_id' => $user->id, 'client_id' => 1]);
+        $did2 = factory(Did::class)->create(['user_id' => $user->id, 'client_id' => 2]);
+
+        $this->get('/dids?client_id=1',
+            [
+                'Authorization' => 'Bearer ' . $token,
+                'Accept' => 'application/json',
+                'content-type' => 'application/json',
+            ])->seeJson([
+                'text' => $did1->text
+            ])->dontSeeJson([
+                'text' => $did2->text
+            ]);
+    }
+
+    /**
+     * @test
+     */
     public function it_tests_all_endpont_require_auth()
     {
         $did = factory(Did::class)->create(['user_id' => 1]);
