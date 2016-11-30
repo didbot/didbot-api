@@ -20,12 +20,7 @@ class GetDidsTest extends TestCase
         $tag = factory(Tag::class)->create();
         $did->tags()->attach([$tag->id]);
 
-        $this->get('/dids',
-                [
-                    'Authorization' => 'Bearer ' . $token,
-                    'Accept' => 'application/json',
-                    'content-type' => 'application/json',
-                ])
+        $this->get('/dids', ['Authorization' => 'Bearer ' . $token ])
         ->seeJsonEquals([
             'data' => [
                 0 => [
@@ -77,12 +72,7 @@ class GetDidsTest extends TestCase
         $did2->tags()->attach([$tag2->id]);
         $did3->tags()->attach([$tag1->id]);
 
-        $this->get('/dids?tag_id=' . $tag1->id,
-                [
-                    'Authorization' => 'Bearer ' . $token,
-                    'Accept' => 'application/json',
-                    'content-type' => 'application/json',
-                ])
+        $this->get('/dids?tag_id=' . $tag1->id, ['Authorization' => 'Bearer ' . $token])
         ->seeJson([
                 'text' => $did1->text
         ])->dontSeeJson([
@@ -103,12 +93,8 @@ class GetDidsTest extends TestCase
         $did1 = factory(Did::class)->create(['user_id' => $user->id, 'client_id' => 1]);
         $did2 = factory(Did::class)->create(['user_id' => $user->id, 'client_id' => 2]);
 
-        $this->get('/dids?client_id=1',
-            [
-                'Authorization' => 'Bearer ' . $token,
-                'Accept' => 'application/json',
-                'content-type' => 'application/json',
-            ])->seeJson([
+        $this->get('/dids?client_id=1', ['Authorization' => 'Bearer ' . $token])
+            ->seeJson([
                 'text' => $did1->text
             ])->dontSeeJson([
                 'text' => $did2->text
@@ -163,11 +149,7 @@ class GetDidsTest extends TestCase
         $this->postJson('/dids', [
                 'text' => $text,
                 'tags' => [$tag1->id, $tag2->id]
-        ], [
-                'Authorization' => 'Bearer ' . $token,
-                'Accept'        => 'application/json',
-                'content-type'  => 'application/json',
-        ])->seeStatusCode(200);
+        ], ['Authorization' => 'Bearer ' . $token])->seeStatusCode(200);
 
         $this->seeInDatabase('dids', ['user_id'=>1, 'text'=>$text]);
         $did = Did::where('text', $text)->firstOrFail();
@@ -189,12 +171,7 @@ class GetDidsTest extends TestCase
 
         $did->tags()->attach([$tag->id]);
 
-        $this->delete('/dids/' . $did->id, [],
-        [
-                'Authorization' => 'Bearer ' . $token,
-                'Accept' => 'application/json',
-                'content-type' => 'application/json',
-        ]);
+        $this->delete('/dids/' . $did->id, [], ['Authorization' => 'Bearer ' . $token]);
 
 
         $this->dontSeeInDatabase('dids',['id' => $did->id]);
@@ -217,11 +194,7 @@ class GetDidsTest extends TestCase
         $tag          = factory(Tag::class)->create();
         $user_did->tags()->attach([$tag->id]);
 
-        $this->get('/dids', [
-                'Authorization' => 'Bearer ' . $token,
-                'Accept' => 'application/json',
-                'content-type' => 'application/json',
-        ])->seeJson([
+        $this->get('/dids', ['Authorization' => 'Bearer ' . $token])->seeJson([
                 'text' => $user_did->text,
         ])->seeJson([
                 'text' => $tag->text
@@ -241,12 +214,7 @@ class GetDidsTest extends TestCase
         $token = $user->createToken('Test Token')->accessToken;
         $dids = factory(Did::class, 50)->create(['user_id' => $user->id]);
 
-        $response = $this->get('/dids',
-            [
-                'Authorization' => 'Bearer ' . $token,
-                'Accept' => 'application/json',
-                'content-type' => 'application/json',
-            ])
+        $response = $this->get('/dids', ['Authorization' => 'Bearer ' . $token])
             ->seeJson(['text' => $dids[49]->text])
             ->seeJson(['text' => $dids[30]->text])
             ->dontSeeJson(['text' => $dids[29]->text])

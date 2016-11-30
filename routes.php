@@ -2,7 +2,7 @@
 
 
 Route::group([
-    'middleware' => 'auth:api',
+    'middleware' => ['auth:api', 'ReturnJson'],
     'namespace' => 'Didbot\DidbotApi\Controllers'
 ], function () {
 

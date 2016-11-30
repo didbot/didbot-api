@@ -26,10 +26,11 @@ class DidsController extends Controller
                     $request->cursor
                 )->with(['tags', 'client'])->orderBy('dids.id', 'DESC')->limit(20)->get();
 
-        return fractal()
+        $results = fractal()
                 ->collection($dids, new DidTransformer())
-                ->withCursor(new Cursor($request->cursor, $request->prev, $dids))
-                ->toJson();
+                ->withCursor(new Cursor($request->cursor, $request->prev, $dids));
+
+        return response()->json($results);
     }
 
     /**

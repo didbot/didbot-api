@@ -5,19 +5,22 @@ namespace Didbot\DidbotApi;
 use App;
 use Laravel\Passport\Passport;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Routing\Router;
 
 class ApiServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap the application services.
+     * @param \Illuminate\Routing\Router $router
      */
-    public function boot()
+    public function boot(Router $router)
     {
         if (!$this->app->routesAreCached()) {
             require __DIR__ . '/../routes.php';
         }
 
         $this->loadMigrationsFrom(__DIR__ . '/../migrations');
+        $router->middleware('ReturnJson', '\Didbot\DidbotApi\Middleware\ReturnJson');
 
         Passport::routes();
     }
