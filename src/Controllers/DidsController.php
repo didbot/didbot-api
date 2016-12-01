@@ -45,7 +45,7 @@ class DidsController extends Controller
         $did = new Did();
         $did->user_id = $request->user()->id;
         $did->text = $request->text;
-        $did->client_id = $request->user()->token()->client;
+        $did->client_id = $request->user()->token()->client->id;
         $did->save();
 
         if(is_array($request->tags) && !empty($request->tags)) $did->tags()->attach($request->tags);
