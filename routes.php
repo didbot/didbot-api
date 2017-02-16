@@ -1,8 +1,8 @@
 <?php
-
+use Didbot\DidbotApi\Middleware\ReturnJson;
 
 Route::group([
-    'middleware' => ['auth:api', 'ReturnJson'],
+    'middleware' => ['auth:api', ReturnJson::class],
     'namespace' => 'Didbot\DidbotApi\Controllers'
 ], function () {
 

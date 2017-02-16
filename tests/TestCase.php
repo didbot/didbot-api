@@ -1,7 +1,7 @@
 <?php
 namespace Didbot\DidbotApi\Test;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Orchestra\Testbench\TestCase as Orchestra;
+use Orchestra\Testbench\BrowserKit\TestCase as Orchestra;
 use Illuminate\Database\Eloquent\Factory;
 use Laravel\Passport\Console\InstallCommand;
 
@@ -16,24 +16,16 @@ abstract class TestCase extends Orchestra
         // Path to Model Factories (within your package
         $this->withFactories(__DIR__ . '/factories');
 
-
-        $artisan = $this->app->make('Illuminate\Contracts\Console\Kernel');
-
         // Migrate laravel/passport tables
-        $artisan->call('migrate', [
-                '--realpath' => realpath(__dir__ . '/../vendor/laravel/passport/database/migrations')
-        ]);
+        $this->artisan('migrate', ['--path' => '/../vendor/laravel/passport/database/migrations']);
 
         // Migrate package tables
-        $artisan->call('migrate', [
-                '--realpath' => realpath(__dir__ . '/../migrations/')
-        ]);
+        $this->artisan('migrate', ['--path' => '/../migrations/']);
 
         // Migrate test only tables
-        $artisan->call('migrate', [
-                '--realpath' => __dir__ . '/migrations'
-        ]);
+        $this->artisan('migrate', ['--path' => '/migrations/']);
 
+        $this->artisan('migrate');
         $this->artisan('passport:install');
     }
 

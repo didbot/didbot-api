@@ -1,10 +1,10 @@
 <?php
 namespace Didbot\DidbotApi\Test;
 
-use \Laravel\Passport\Token;
-use \Didbot\DidbotApi\Models\Did;
-use \Didbot\DidbotApi\Models\Tag;
-use \Didbot\DidbotApi\Test\Models\User;
+use Didbot\DidbotApi\Models\Did;
+use Didbot\DidbotApi\Models\Tag;
+use Didbot\DidbotApi\Test\Models\User;
+use Laravel\Passport\Passport;
 
 class GetDidsTest extends TestCase
 {
@@ -88,12 +88,12 @@ class GetDidsTest extends TestCase
     public function it_tests_the_get_dids_endpoint_by_client_id()
     {
         $user = factory(User::class)->create();
-        $token = $user->createToken('Test Token')->accessToken;
+        Passport::actingAs($user);
 
         $did1 = factory(Did::class)->create(['user_id' => $user->id, 'client_id' => 1]);
         $did2 = factory(Did::class)->create(['user_id' => $user->id, 'client_id' => 2]);
 
-        $this->get('/dids?client_id=1', ['Authorization' => 'Bearer ' . $token])
+        $this->get('/dids?client_id=1')
             ->seeJson([
                 'text' => $did1->text
             ])->dontSeeJson([
@@ -108,26 +108,44 @@ class GetDidsTest extends TestCase
     {
         $did = factory(Did::class)->create(['user_id' => 1]);
 
-        $this->get('/dids', [
-                'Authorization' => 'Bearer 123',
+        $exception = false;
+        try {
+            $this->call('GET', '/dids', [
+                'Authorization' => 'Bearer ' . str_random(232),
                 'Accept'        => 'application/json',
                 'content-type'  => 'application/json',
-        ])
-        ->see('Unauthorized')->seeStatusCode(401);
+            ]);
+        } catch (\Exception $e) {
+            $this->assertContains("Unauthenticated.", $e->getMessage());
+            $exception = true;
+        }
+        $this->assertTrue($exception);
 
-        $this->postJson('/dids', ['text'=>'test'], [
-                'Authorization' => 'Bearer 123',
+        $exception = false;
+        try {
+            $this->postJson('/dids', ['text'=>'test'], [
+                'Authorization' => 'Bearer ' . str_random(232),
                 'Accept'        => 'application/json',
                 'content-type'  => 'application/json',
-        ])
-        ->see('Unauthorized')->seeStatusCode(401);
+            ]);
+        } catch (\Exception $e) {
+            $this->assertContains("The resource owner or authorization server denied the request.", $e->getMessage());
+            $exception = true;
+        }
+        $this->assertTrue($exception);
 
-        $this->delete('/dids/' .  $did->id, [], [
-                'Authorization' => 'Bearer 123',
+        $exception = false;
+        try {
+            $this->delete('/dids/' .  $did->id, [], [
+                'Authorization' => 'Bearer ' . str_random(232),
                 'Accept'        => 'application/json',
                 'content-type'  => 'application/json',
-        ])
-        ->see('Unauthorized')->seeStatusCode(401);
+            ]);
+        } catch (\Exception $e) {
+            $this->assertContains("The resource owner or authorization server denied the request.", $e->getMessage());
+            $exception = true;
+        }
+        $this->assertTrue($exception);
 
     }
 
