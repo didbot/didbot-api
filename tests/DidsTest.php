@@ -110,13 +110,13 @@ class GetDidsTest extends TestCase
 
         $exception = false;
         try {
-            $this->call('GET', '/dids', [
+            $this->get('/dids', [
                 'Authorization' => 'Bearer ' . str_random(232),
                 'Accept'        => 'application/json',
                 'content-type'  => 'application/json',
             ]);
         } catch (\Exception $e) {
-            $this->assertContains("Unauthenticated.", $e->getMessage());
+            $this->assertContains("The resource owner or authorization server denied the request.", $e->getMessage());
             $exception = true;
         }
         $this->assertTrue($exception);
