@@ -108,45 +108,20 @@ class GetDidsTest extends TestCase
     {
         $did = factory(Did::class)->create(['user_id' => 1]);
 
-        $exception = false;
-        try {
-            $this->get('/dids', [
-                'Authorization' => 'Bearer ' . str_random(232),
-                'Accept'        => 'application/json',
-                'content-type'  => 'application/json',
-            ]);
-        } catch (\Exception $e) {
-            $this->assertContains("The resource owner or authorization server denied the request.", $e->getMessage());
-            $exception = true;
-        }
-        $this->assertTrue($exception);
+        $response = $this->call('GET','/dids', [], [], [], [
+            'HTTP_AUTHORIZATION' => 'Bearer ' . str_random(232)
+        ]);
+        $this->assertEquals(401, $response->getStatusCode());
 
-        $exception = false;
-        try {
-            $this->postJson('/dids', ['text'=>'test'], [
-                'Authorization' => 'Bearer ' . str_random(232),
-                'Accept'        => 'application/json',
-                'content-type'  => 'application/json',
+        $response = $this->call('POST', '/dids', ['text'=>'test'], [], [], [], [
+            'HTTP_AUTHORIZATION' => 'Bearer ' . str_random(232)
             ]);
-        } catch (\Exception $e) {
-            $this->assertContains("The resource owner or authorization server denied the request.", $e->getMessage());
-            $exception = true;
-        }
-        $this->assertTrue($exception);
+        $this->assertEquals(401, $response->getStatusCode());
 
-        $exception = false;
-        try {
-            $this->delete('/dids/' .  $did->id, [], [
-                'Authorization' => 'Bearer ' . str_random(232),
-                'Accept'        => 'application/json',
-                'content-type'  => 'application/json',
+        $response = $this->call('DELETE', '/dids/' .  $did->id, [], [
+            'HTTP_AUTHORIZATION' => 'Bearer ' . str_random(232)
             ]);
-        } catch (\Exception $e) {
-            $this->assertContains("The resource owner or authorization server denied the request.", $e->getMessage());
-            $exception = true;
-        }
-        $this->assertTrue($exception);
-
+        $this->assertEquals(401, $response->getStatusCode());
     }
 
 

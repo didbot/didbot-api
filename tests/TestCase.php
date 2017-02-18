@@ -27,6 +27,10 @@ abstract class TestCase extends Orchestra
 
         $this->artisan('migrate');
         $this->artisan('passport:install');
+
+        $this->serverVariables = [
+            'HTTP_X_REQUESTED_WITH'=> 'XMLHttpRequest'
+        ];
     }
 
     /**
@@ -65,7 +69,8 @@ abstract class TestCase extends Orchestra
         $app['config']->set('app', [
                 'debug' => true,
                 'key'   => str_random(32),
-                'cipher'=> 'AES-256-CBC'
+                'cipher'=> 'AES-256-CBC',
+                'log'   => 'single'
         ]);
 
         $base_path = $app['path.base'];
