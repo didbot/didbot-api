@@ -59,12 +59,20 @@ class TagController extends Controller
     /**
      * Display the specified resource.
      *
+     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        abort(404);
+        try{
+            $tag = $request->user()->tags()->where('id', $id)->firstOrFail();
+            $results = fractal()->item($tag, new TagTransformer());
+            return response()->json($results);
+        }catch (\Exception $e){
+            return response()->json([ 'error' => 404, 'message' => 'Not found' ], 404);
+        }
+
     }
 
     /**

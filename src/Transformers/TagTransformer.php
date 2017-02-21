@@ -23,13 +23,13 @@ class TagTransformer extends TransformerAbstract
     {
         return [
                 'id' => (int)$tag->id,
-                'text' => $tag->text,
+                'text' => $tag->text
         ];
     }
 
     /**
      * Include Author
-     * @return League\Fractal\ItemResource
+     * @return \League\Fractal\ItemResource
      */
     public function includeDids(Did $did)
     {

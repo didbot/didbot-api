@@ -8,17 +8,13 @@ class Did extends Model
 {
     /*
     |--------------------------------------------------------------------------
-    | Attributes
+    | Accessors & Mutators
     |--------------------------------------------------------------------------
     |
     |
     */
 
-
-    public function getCreatedAtAttribute($value)
-    {
-        return Carbon::createFromFormat('Y-m-d H:i:s', $value)->diffForHumans(Carbon::now(), TRUE, TRUE, 3);
-    }
+    //
 
     /*
     |--------------------------------------------------------------------------

@@ -25,6 +25,7 @@ class DidTransformer extends TransformerAbstract
         return [
             'id'    => (int)$did->id,
             'text'  => $did->text,
+            'created_at' => $did->created_at->toDateTimeString()
         ];
     }
 
@@ -45,8 +46,6 @@ class DidTransformer extends TransformerAbstract
      */
     public function includeClient(Did $did)
     {
-        $c = $did->client;
-
         return $this->item($did->client, new ClientTransformer);
     }
 }

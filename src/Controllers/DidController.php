@@ -65,12 +65,21 @@ class DidController extends Controller
     /**
      * Display the specified resource.
      *
+     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        return response()->json([ 'error' => 404, 'message' => 'Not found' ], 404);
+
+        try{
+            $did = $request->user()->dids()->where('id', $id)->with(['tags', 'client'])->firstOrFail();
+            $results = fractal()->item($did, new DidTransformer());
+            return response()->json($results);
+        }catch (\Exception $e){
+            return response()->json([ 'error' => 404, 'message' => 'Not found' ], 404);
+        }
+
     }
 
     /**
