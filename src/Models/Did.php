@@ -52,6 +52,13 @@ class Did extends Model
     |
     */
 
+    public function scopeSearchFilter($query, $q)
+    {
+        if(!empty($q)){
+            return $query->where(DB::raw('LOWER(text)'), 'LIKE', '%' . strtolower($q) . '%');
+        }
+    }
+
     public function scopeTagFilter($query, $tag_id)
     {
         if(!empty($tag_id)){

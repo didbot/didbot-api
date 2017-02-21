@@ -19,10 +19,11 @@ class DidController extends Controller
     public function index(Request $request)
     {
         $dids = $request->user()->dids()
+            ->searchFilter($request->q)
             ->tagFilter($request->tag_id)
             ->clientFilter($request->client_id)
             ->cursorFilter($request->cursor)
-            ->with(['tags', 'client'])->orderBy('dids.id', 'DESC')->limit(20)->get();
+            ->with(['tags', 'client'])->orderBy('id', 'DESC')->limit(20)->get();
 
         $results = fractal()
             ->collection($dids, new DidTransformer())

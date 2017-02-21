@@ -4,6 +4,8 @@ namespace Didbot\DidbotApi\Controllers;
 
 use Illuminate\Http\Request;
 use Didbot\DidbotApi\Models\Tag;
+use Didbot\DidbotApi\CustomCursor as Cursor;
+use Didbot\DidbotApi\Transformers\TagTransformer;
 
 class TagController extends Controller
 {
@@ -16,7 +18,16 @@ class TagController extends Controller
      */
     public function index(Request $request)
     {
-        return $request->user()->tags;
+        $tags = $request->user()->tags()
+            ->searchFilter($request->q)
+            ->cursorFilter($request->cursor)
+            ->orderBy('id', 'DESC')->limit(20)->get();
+
+        $results = fractal()
+            ->collection($tags, new TagTransformer())
+            ->withCursor(new Cursor($request->cursor, $request->prev, $tags));
+
+        return $results;
     }
 
     /**
