@@ -6,10 +6,27 @@ use DB;
 
 class Did extends Model
 {
+    /*
+    |--------------------------------------------------------------------------
+    | Attributes
+    |--------------------------------------------------------------------------
+    |
+    |
+    */
+
+
     public function getCreatedAtAttribute($value)
     {
         return Carbon::createFromFormat('Y-m-d H:i:s', $value)->diffForHumans(Carbon::now(), TRUE, TRUE, 3);
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    |
+    |
+    */
 
     /**
      * The tags that belong to the did.
@@ -27,27 +44,34 @@ class Did extends Model
         return $this->belongsTo('Laravel\Passport\Client');
     }
 
-    /**
-     * Prepares a did eloquent model.
-     * @param integer $user_id
-     * @param integer $tag_id
-     * @param integer $client_id
-     * @param integer $cursor
-     *
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function getDids($user_id, $tag_id, $client_id, $cursor)
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    |
+    |
+    */
+
+    public function scopeTagFilter($query, $tag_id)
     {
-        $dids = Did::where('dids.user_id', $user_id);
-
-        if ($cursor) $dids->where('dids.id', '<', $cursor);
-        if ($client_id) $dids->where('dids.client_id', $client_id);
-
-        if($tag_id){
-            $dids->join('did_tag', 'dids.id', '=', 'did_tag.did_id');
-            $dids->where('did_tag.tag_id', $tag_id);
+        if(!empty($tag_id)){
+            return $query->whereHas('tags', function ($query) use ($tag_id) {
+                $query->where('id', $tag_id);
+            });
         }
+    }
 
-        return $dids;
+    public function scopeClientFilter($query, $client_id)
+    {
+        if(!empty($client_id)){
+            return $query->where('client_id', $client_id);
+        }
+    }
+
+    public function scopeCursorFilter($query, $cursor)
+    {
+        if(!empty($cursor)){
+            return $query->where('id', '<', $cursor);
+        }
     }
 }

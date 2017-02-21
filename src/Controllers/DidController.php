@@ -13,18 +13,16 @@ class DidController extends Controller
      * Display a listing of the resource.
      *
      * @param Request $request
-     * @param Did $did
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request, Did $did)
+    public function index(Request $request)
     {
-        $dids = $did->getDids(
-            $request->user()->id,
-            $request->tag_id,
-            $request->client_id,
-            $request->cursor
-        )->with(['tags', 'client'])->orderBy('dids.id', 'DESC')->limit(20)->get();
+        $dids = $request->user()->dids()
+            ->tagFilter($request->tag_id)
+            ->clientFilter($request->client_id)
+            ->cursorFilter($request->cursor)
+            ->with(['tags', 'client'])->orderBy('dids.id', 'DESC')->limit(20)->get();
 
         $results = fractal()
             ->collection($dids, new DidTransformer())
@@ -71,7 +69,7 @@ class DidController extends Controller
      */
     public function show($id)
     {
-        abort(404);
+        return response()->json([ 'error' => 404, 'message' => 'Not found' ], 404);
     }
 
     /**
@@ -94,7 +92,7 @@ class DidController extends Controller
      */
     public function update(Request $request, $id)
     {
-        abort(404);
+        return response()->json([ 'error' => 404, 'message' => 'Not found' ], 404);
     }
 
     /**
