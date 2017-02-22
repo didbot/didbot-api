@@ -18,16 +18,18 @@ class DidController extends Controller
      */
     public function index(Request $request)
     {
+        $limit = 20;
+
         $dids = $request->user()->dids()
             ->searchFilter($request->q)
             ->tagFilter($request->tag_id)
             ->clientFilter($request->client_id)
             ->cursorFilter($request->cursor)
-            ->with(['tags', 'client'])->orderBy('id', 'DESC')->limit(20)->get();
+            ->with(['tags', 'client'])->orderBy('id', 'DESC')->limit($limit)->get();
 
         $results = fractal()
             ->collection($dids, new DidTransformer())
-            ->withCursor(new Cursor($request->cursor, $request->prev, $dids));
+            ->withCursor(new Cursor($request->cursor, $request->prev, $dids, $limit));
 
         return response()->json($results);
     }
@@ -60,6 +62,9 @@ class DidController extends Controller
         $did->save();
 
         if(is_array($request->tags) && !empty($request->tags)) $did->tags()->attach($request->tags);
+
+        $results = fractal()->item($did, new DidTransformer());
+        return response()->json($results);
     }
 
     /**

@@ -25,7 +25,7 @@ class DidTransformer extends TransformerAbstract
         return [
             'id'    => (int)$did->id,
             'text'  => $did->text,
-            'created_at' => $did->created_at->toDateTimeString()
+            'created_at' => $did->created_at->toIso8601String()
         ];
     }
 

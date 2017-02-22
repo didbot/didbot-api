@@ -18,14 +18,16 @@ class TagController extends Controller
      */
     public function index(Request $request)
     {
+        $limit = 20;
+
         $tags = $request->user()->tags()
             ->searchFilter($request->q)
             ->cursorFilter($request->cursor)
-            ->orderBy('id', 'DESC')->limit(20)->get();
+            ->orderBy('id', 'DESC')->limit($limit)->get();
 
         $results = fractal()
             ->collection($tags, new TagTransformer())
-            ->withCursor(new Cursor($request->cursor, $request->prev, $tags));
+            ->withCursor(new Cursor($request->cursor, $request->prev, $tags, $limit));
 
         return $results;
     }
@@ -50,10 +52,13 @@ class TagController extends Controller
     {
         $this->validate($request, ['text' => 'required|max:255']);
 
-        $did = new Tag();
-        $did->user_id = $request->user()->id;
-        $did->text = $request->text;
-        $did->save();
+        $tag = new Tag();
+        $tag->user_id = $request->user()->id;
+        $tag->text = $request->text;
+        $tag->save();
+
+        $results = fractal()->item($tag, new TagTransformer());
+        return response()->json($results);
     }
 
     /**

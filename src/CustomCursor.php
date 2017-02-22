@@ -31,12 +31,12 @@ class CustomCursor implements CursorInterface
     protected $count;
 
 
-    public function __construct($current, $prev, $object)
+    public function __construct($current, $prev, $object, $limit)
     {
         $this->current = ($current) ? (int)$current : null;
         $this->prev    = ($prev) ? (int)$prev : null;
-        $this->next    = (count($object)) ? $object->last()->id : null;
         $this->count   = count($object);
+        $this->setNext($object, $limit);
     }
 
     /**
@@ -73,5 +73,15 @@ class CustomCursor implements CursorInterface
     public function getCount()
     {
         return $this->count;
+    }
+
+    protected function setNext($object, $limit)
+    {
+        if($limit > $this->count){
+            $this->next = null;
+            return;
+        }
+
+        $this->next = ($this->count) ? $object->last()->id : null;
     }
 }

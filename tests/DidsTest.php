@@ -40,13 +40,14 @@ class GetDidsTest extends TestCase
                             'name' => ' Personal Access Client',
                         ],
                     ],
+                    'created_at' => $did->created_at->toIso8601String()
                 ],
             ],
             'meta' => [
                 'cursor' => [
                     'current' => NULL,
                     'prev' => NULL,
-                    'next' => 1,
+                    'next' => NULL,
                     'count' => 1,
                 ],
             ],
@@ -253,7 +254,7 @@ class GetDidsTest extends TestCase
                      'cursor' => [
                              'count' => 10,
                              'current' => 11,
-                             'next' => 1,
+                             'next' => null,
                              'prev' => 31
                      ]
              ])
