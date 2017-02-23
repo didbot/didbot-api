@@ -26,6 +26,17 @@ class CreateDidsTable extends Migration
             $table->foreign('user_id')->references('id')->on('users');
             $table->foreign('client_id')->references('id')->on('oauth_clients');
         });
+
+        // if using pgsql create a full text search index
+        if(DB::connection()->getDriverName() == 'pgsql'){
+            DB::statement('ALTER TABLE dids ADD searchable tsvector NULL');
+            DB::statement('CREATE INDEX dids_searchable_index ON dids USING GIST (searchable)');
+            DB::statement('CREATE TRIGGER ts_searchable 
+                BEFORE INSERT OR UPDATE ON dids 
+                FOR EACH ROW EXECUTE PROCEDURE 
+                    tsvector_update_trigger(\'searchable\', \'pg_catalog.english\', \'text\')'
+            );
+        }
     }
 
     /**

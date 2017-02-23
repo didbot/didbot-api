@@ -1,11 +1,14 @@
 <?php
 namespace Didbot\DidbotApi\Models;
 use Illuminate\Database\Eloquent\Model;
-use Carbon\Carbon;
 use DB;
 
 class Did extends Model
 {
+    protected $hidden = [
+        'searchable',
+    ];
+
     /*
     |--------------------------------------------------------------------------
     | Accessors & Mutators
@@ -47,6 +50,23 @@ class Did extends Model
     |
     |
     */
+
+    public function scopeFullTextSearchFilter($query, $q, $user_id)
+    {
+
+        // fall back to basic search if not using pgsql driver or $q is a single word
+        if(DB::connection()->getDriverName() != 'pgsql' || !strpos($q, ' ')){
+            return $this->scopeSearchFilter($query, $q);
+        }
+
+        if(!empty($q)){
+            return $query->whereRaw('id IN (
+            		SELECT id FROM dids 
+            		WHERE searchable @@ plainto_tsquery(?) AND user_id = ?)',
+                [$q, $user_id]
+            );
+        }
+    }
 
     public function scopeSearchFilter($query, $q)
     {

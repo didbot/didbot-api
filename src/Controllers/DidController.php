@@ -19,9 +19,10 @@ class DidController extends Controller
     public function index(Request $request)
     {
         $limit = 20;
+        $user = $request->user();
 
-        $dids = $request->user()->dids()
-            ->searchFilter($request->q)
+        $dids = $user->dids()
+            ->fullTextSearchFilter($request->q, $user->id)
             ->tagFilter($request->tag_id)
             ->clientFilter($request->client_id)
             ->cursorFilter($request->cursor)
