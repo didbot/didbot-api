@@ -18,6 +18,13 @@ class CreateDidsTable extends Migration
             $table->string('geo')->nullable();
             $table->integer('client_id');
             $table->timestamps();
+
+            $table->index('user_id');
+            $table->index('client_id');
+            $table->index('created_at');
+
+            $table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('client_id')->references('id')->on('oauth_clients');
         });
     }
 

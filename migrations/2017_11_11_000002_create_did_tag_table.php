@@ -15,6 +15,9 @@ class CreateDidTagTable extends Migration
             $table->integer('did_id');
             $table->integer('tag_id');
             $table->timestamps();
+
+            $table->foreign('did_id')->references('id')->on('dids');
+            $table->foreign('tag_id')->references('id')->on('tags');
         });
     }
 

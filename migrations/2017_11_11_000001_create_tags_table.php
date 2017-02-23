@@ -16,6 +16,12 @@ class CreateTagsTable extends Migration
             $table->integer('user_id');
             $table->string('text');
             $table->timestamps();
+
+            $table->index('user_id');
+            $table->index('text');
+            $table->unique(['user_id', 'text']);
+
+            $table->foreign('user_id')->references('id')->on('users');
         });
     }
 
