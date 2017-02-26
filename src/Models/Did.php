@@ -1,6 +1,7 @@
 <?php
 namespace Didbot\DidbotApi\Models;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 use DB;
 
 class Did extends Model
@@ -96,5 +97,23 @@ class Did extends Model
         if(!empty($cursor)){
             return $query->where('id', '<', $cursor);
         }
+    }
+
+    public function scopeDateFilter($query, $since, $until)
+    {
+
+        if(!empty($since))
+        {
+            $since = Carbon::parse($since);
+            $query->where('created_at', '>=', $since->toDateTimeString());
+        }
+
+        if(!empty($until))
+        {
+            $until = Carbon::parse($until);
+            $query->where('created_at', '<=', $until->toDateTimeString());
+        }
+
+        return $query;
     }
 }

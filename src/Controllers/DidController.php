@@ -21,11 +21,17 @@ class DidController extends Controller
         $limit = 20;
         $user = $request->user();
 
+        $this->validate($request, [
+            'since' => 'iso8601',
+            'until' => 'iso8601'
+            ]);
+
         $dids = $user->dids()
             ->fullTextSearchFilter($request->q, $user->id)
             ->tagFilter($request->tag_id)
             ->clientFilter($request->client_id)
             ->cursorFilter($request->cursor)
+            ->dateFilter($request->since, $request->until)
             ->with(['tags', 'client'])->orderBy('id', 'DESC')->limit($limit)->get();
 
         $results = fractal()
