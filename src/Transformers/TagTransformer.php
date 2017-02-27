@@ -22,7 +22,7 @@ class TagTransformer extends TransformerAbstract
     public function transform(Tag $tag)
     {
         return [
-                'id' => (int)$tag->id,
+                'id' => $tag->id,
                 'text' => $tag->text
         ];
     }

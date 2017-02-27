@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Didbot\DidbotApi\Models\Did;
 use Didbot\DidbotApi\CustomCursor as Cursor;
 use Didbot\DidbotApi\Transformers\DidTransformer;
+use DB;
 
 class DidController extends Controller
 {
@@ -32,7 +33,9 @@ class DidController extends Controller
             ->clientFilter($request->client_id)
             ->cursorFilter($request->cursor)
             ->dateFilter($request->since, $request->until)
-            ->with(['tags', 'client'])->orderBy('id', 'DESC')->limit($limit)->get();
+            ->with(['tags', 'client'])
+            ->orderBy(DB::raw('uuid_v1_timestamp(id)'), 'DESC')
+            ->limit($limit)->get();
 
         $results = fractal()
             ->collection($dids, new DidTransformer())

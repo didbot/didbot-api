@@ -23,7 +23,7 @@ class DidTransformer extends TransformerAbstract
     public function transform(Did $did)
     {
         return [
-            'id'    => (int)$did->id,
+            'id'    => $did->id,
             'text'  => $did->text,
             'created_at' => $did->created_at->toIso8601String()
         ];

@@ -1,14 +1,19 @@
 <?php
 namespace Didbot\DidbotApi\Models;
 use Illuminate\Database\Eloquent\Model;
+use Didbot\DidbotApi\Traits\Uuids;
 use Carbon\Carbon;
 use DB;
 
 class Did extends Model
 {
+    use Uuids;
+
     protected $hidden = [
         'searchable',
     ];
+
+    public $incrementing = false;
 
     /*
     |--------------------------------------------------------------------------
@@ -19,6 +24,7 @@ class Did extends Model
     */
 
     //
+
 
     /*
     |--------------------------------------------------------------------------
@@ -95,7 +101,7 @@ class Did extends Model
     public function scopeCursorFilter($query, $cursor)
     {
         if(!empty($cursor)){
-            return $query->where('id', '<', $cursor);
+            return $query->whereRaw('uuid_v1_timestamp(id) < uuid_v1_timestamp(?)', [$cursor]);
         }
     }
 

@@ -3,9 +3,13 @@
 namespace Didbot\DidbotApi\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Didbot\DidbotApi\Traits\Uuids;
 
 class Tag extends Model
 {
+    use Uuids;
+
+    public $incrementing = false;
 
     /*
     |--------------------------------------------------------------------------
@@ -15,8 +19,7 @@ class Tag extends Model
     |
     */
 
-        //
-
+    //
 
     /*
     |--------------------------------------------------------------------------
