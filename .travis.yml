@@ -7,3 +7,5 @@ before_script:
 script: phpunit
 services:
   - postgresql
+addons:
+  postgresql: "9.6"
