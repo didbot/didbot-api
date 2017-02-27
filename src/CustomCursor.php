@@ -33,8 +33,8 @@ class CustomCursor implements CursorInterface
 
     public function __construct($current, $prev, $object, $limit)
     {
-        $this->current = ($current) ? (int)$current : null;
-        $this->prev    = ($prev) ? (int)$prev : null;
+        $this->current = ($current) ? $current : null;
+        $this->prev    = ($prev) ? $prev : null;
         $this->count   = count($object);
         $this->setNext($object, $limit);
     }

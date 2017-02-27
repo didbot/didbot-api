@@ -5,8 +5,9 @@ use Didbot\DidbotApi\Models\Did;
 use Didbot\DidbotApi\Models\Tag;
 use Didbot\DidbotApi\Test\Models\User;
 use Laravel\Passport\Passport;
+use Webpatser\Uuid\Uuid;
 
-class GetDidsTest extends TestCase
+class DidsTest extends TestCase
 {
 
     /**
@@ -60,11 +61,12 @@ class GetDidsTest extends TestCase
     public function it_tests_the_get_dids_endpoint_by_tag_id()
     {
         $user = factory(User::class)->create();
+        $user2 = factory(User::class)->create();
         $token = $user->createToken('Test Token')->accessToken;
 
         $did1 = factory(Did::class)->create(['user_id' => $user->id]);
         $did2 = factory(Did::class)->create(['user_id' => $user->id]);
-        $did3 = factory(Did::class)->create(['user_id' => $user->id + 1]);
+        $did3 = factory(Did::class)->create(['user_id' => $user2->id]);
 
         $tag1 = factory(Tag::class)->create();
         $tag2 = factory(Tag::class)->create();
@@ -107,7 +109,8 @@ class GetDidsTest extends TestCase
      */
     public function it_tests_all_endpont_require_auth()
     {
-        $did = factory(Did::class)->create(['user_id' => 1]);
+        $user = factory(User::class)->create();
+        $did = factory(Did::class)->create(['user_id' => $user->id]);
 
         $response = $this->call('GET','/dids', [], [], [], [
             'HTTP_AUTHORIZATION' => 'Bearer ' . str_random(232)
@@ -182,9 +185,10 @@ class GetDidsTest extends TestCase
     {
 
         $user         = factory(User::class)->create();
+        $user2        = factory(User::class)->create();
         $token        = $user->createToken('Test Token')->accessToken;
         $user_did     = factory(Did::class)->create(['user_id' => $user->id]);
-        $not_user_did = factory(Did::class)->create(['user_id' => ($user->id + 1)]);
+        $not_user_did = factory(Did::class)->create(['user_id' => ($user2->id)]);
         $tag          = factory(Tag::class)->create();
         $user_did->tags()->attach([$tag->id]);
 
@@ -216,11 +220,11 @@ class GetDidsTest extends TestCase
                 'cursor' => [
                    'count' => 20,
                    'current' => null,
-                   'next' => 31,
+                   'next' => $dids[30]->id,
                    'prev' => null
             ]])->decodeResponseJson();
 
-        $response = $this->get('/dids?cursor=' . $response['meta']['cursor']['next'],
+        $response = $this->get('/dids?cursor=' . urlencode($response['meta']['cursor']['next']),
                 [
                         'Authorization' => 'Bearer ' . $token,
                         'Accept' => 'application/json',
@@ -232,8 +236,8 @@ class GetDidsTest extends TestCase
              ->seeJsonContains([
                      'cursor' => [
                              'count' => 20,
-                             'current' => 31,
-                             'next' => 11,
+                             'current' => $dids[30]->id,
+                             'next' => $dids[10]->id,
                              'prev' => null
                      ]
              ])
@@ -253,9 +257,9 @@ class GetDidsTest extends TestCase
              ->seeJsonContains([
                      'cursor' => [
                              'count' => 10,
-                             'current' => 11,
+                             'current' => $dids[10]->id,
                              'next' => null,
-                             'prev' => 31
+                             'prev' => $dids[30]->id
                      ]
              ])
              ->decodeResponseJson();
