@@ -39,7 +39,7 @@ class CreateDidsTable extends Migration
             );
 
             DB::statement('
-                CREATE OR REPLACE FUNCTION uuid_v1_timestamp (_uuid uuid)
+                CREATE OR REPLACE FUNCTION uuid_v1_timestamp (_uuid "uuid")
                 RETURNS TIMESTAMP WITH TIME zone AS $$
                 
                     SELECT
