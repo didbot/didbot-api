@@ -1,5 +1,9 @@
 language: php
 php:
   - '7.0'
-before_script: composer install --prefer-source
+before_script:
+  - composer install --prefer-source
+  - psql -c 'create database didbot_test;' -U postgres
 script: phpunit
+services:
+  - postgresql

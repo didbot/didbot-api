@@ -49,11 +49,21 @@ abstract class TestCase extends Orchestra
      */
     protected function getEnvironmentSetUp($app)
     {
-        $app['config']->set('database.default', 'sqlite');
+        $app['config']->set('database.default', 'pgsql');
         $app['config']->set('database.connections.sqlite', [
                 'driver' => 'sqlite',
                 'database' => ':memory:',
                 'prefix' => '',
+        ]);
+
+        $app['config']->set('database.connections.pgsql', [
+            'driver' => 'pgsql',
+            'database' => 'didbot_test',
+            'username' => 'postgres',
+            'host' => 'localhost',
+            'charset' => 'utf8',
+            'prefix' => '',
+            'schema' => 'public',
         ]);
 
         $app['config']->set('auth.guards.api', [
