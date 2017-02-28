@@ -2,6 +2,7 @@
 
 namespace Didbot\DidbotApi\Test\Models;
 
+use Didbot\DidbotApi\Traits\Uuids;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Passport\HasApiTokens;
@@ -9,7 +10,9 @@ use Didbot\DidbotApi\Traits\HasDids;
 
 class User extends Authenticatable
 {
-    use Notifiable, HasApiTokens, HasDids;
+    use Notifiable, HasApiTokens, HasDids, Uuids;
+
+    public $incrementing = false;
 
     /**
      * The attributes that are mass assignable.

@@ -1,7 +1,7 @@
 <?php
 namespace Didbot\DidbotApi\Test;
 
-use \Laravel\Passport\Token;
+use \Laravel\Passport\Client;
 use \Didbot\DidbotApi\Models\Did;
 use \Didbot\DidbotApi\Models\Tag;
 use \Didbot\DidbotApi\Test\Models\User;
@@ -15,7 +15,7 @@ class TagsTest extends TestCase
      public function it_tests_the_get_tags_endpoint()
      {
          $user  = factory(User::class)->create();
-         $tag   = factory(Tag::class)->create();
+         $tag   = factory(Tag::class)->create(['user_id' => $user->id]);
          $token = $user->createToken('Test Token')->accessToken;
 
          $this->get('/tags', [
@@ -44,7 +44,7 @@ class TagsTest extends TestCase
                 'content-type'  => 'application/json',
         ])->seeStatusCode(200);
 
-        $this->seeInDatabase('tags', ['user_id' => 1, 'text' => $text]);
+        $this->seeInDatabase('tags', ['user_id' => $user->id, 'text' => $text]);
     }
 
     /**
@@ -55,8 +55,9 @@ class TagsTest extends TestCase
 
         $user  = factory(User::class)->create();
         $token = $user->createToken('Test Token')->accessToken;
-        $did = factory(Did::class)->create(['user_id' => 1]);
-        $tag = factory(Tag::class)->create(['user_id' => 1]);
+        $client = factory(Client::class)->create(['user_id' => $user->id]);
+        $did = factory(Did::class)->create(['user_id' => $user->id, 'client_id'=> $client->id]);
+        $tag = factory(Tag::class)->create(['user_id' => $user->id]);
 
         $did->tags()->attach([$tag->id]);
 

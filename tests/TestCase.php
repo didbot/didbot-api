@@ -22,9 +22,6 @@ abstract class TestCase extends Orchestra
         // Migrate package tables
         $this->artisan('migrate', ['--path' => '/../migrations/']);
 
-        // Migrate test only tables
-        $this->artisan('migrate', ['--path' => '/migrations/']);
-
         $this->artisan('migrate');
         $this->artisan('passport:install');
 

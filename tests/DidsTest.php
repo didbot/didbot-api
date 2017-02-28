@@ -5,6 +5,7 @@ use Didbot\DidbotApi\Models\Did;
 use Didbot\DidbotApi\Models\Tag;
 use Didbot\DidbotApi\Test\Models\User;
 use Laravel\Passport\Passport;
+use Laravel\Passport\Client;
 use Webpatser\Uuid\Uuid;
 
 class DidsTest extends TestCase
@@ -17,8 +18,9 @@ class DidsTest extends TestCase
     {
         $user = factory(User::class)->create();
         $token = $user->createToken('Test Token')->accessToken;
-        $did = factory(Did::class)->create(['user_id' => $user->id]);
-        $tag = factory(Tag::class)->create();
+        $client = factory(Client::class)->create(['user_id' => $user->id]);
+        $did = factory(Did::class)->create(['user_id' => $user->id, 'client_id'=> $client->id]);
+        $tag = factory(Tag::class)->create(['user_id' => $user->id]);
         $did->tags()->attach([$tag->id]);
 
         $this->get('/dids', ['Authorization' => 'Bearer ' . $token ])
@@ -37,8 +39,8 @@ class DidsTest extends TestCase
                     ],
                     'client' => [
                         'data' => [
-                            'id' => 1,
-                            'name' => ' Personal Access Client',
+                            'id' => $client->id,
+                            'name' => $client->name,
                         ],
                     ],
                     'created_at' => $did->created_at->toIso8601String()
@@ -63,13 +65,14 @@ class DidsTest extends TestCase
         $user = factory(User::class)->create();
         $user2 = factory(User::class)->create();
         $token = $user->createToken('Test Token')->accessToken;
+        $client = factory(Client::class)->create(['user_id' => $user->id]);
 
-        $did1 = factory(Did::class)->create(['user_id' => $user->id]);
-        $did2 = factory(Did::class)->create(['user_id' => $user->id]);
-        $did3 = factory(Did::class)->create(['user_id' => $user2->id]);
+        $did1 = factory(Did::class)->create(['user_id' => $user->id, 'client_id'=> $client->id]);
+        $did2 = factory(Did::class)->create(['user_id' => $user->id, 'client_id'=> $client->id]);
+        $did3 = factory(Did::class)->create(['user_id' => $user2->id, 'client_id'=> $client->id]);
 
-        $tag1 = factory(Tag::class)->create();
-        $tag2 = factory(Tag::class)->create();
+        $tag1 = factory(Tag::class)->create(['user_id' => $user->id]);
+        $tag2 = factory(Tag::class)->create(['user_id' => $user->id]);
 
         $did1->tags()->attach([$tag1->id]);
         $did2->tags()->attach([$tag2->id]);
@@ -82,7 +85,7 @@ class DidsTest extends TestCase
                 'text' => $did2->text
         ])->dontSeeJson([
                 'text' => $did3->text
-        ]);;
+        ]);
     }
 
     /**
@@ -92,11 +95,13 @@ class DidsTest extends TestCase
     {
         $user = factory(User::class)->create();
         Passport::actingAs($user);
+        $client1 = factory(Client::class)->create(['user_id' => $user->id]);
+        $client2 = factory(Client::class)->create(['user_id' => $user->id]);
 
-        $did1 = factory(Did::class)->create(['user_id' => $user->id, 'client_id' => 1]);
-        $did2 = factory(Did::class)->create(['user_id' => $user->id, 'client_id' => 2]);
+        $did1 = factory(Did::class)->create(['user_id' => $user->id, 'client_id' => $client1->id]);
+        $did2 = factory(Did::class)->create(['user_id' => $user->id, 'client_id' => $client2->id]);
 
-        $this->get('/dids?client_id=1')
+        $this->get('/dids?client_id=' . $client1->id)
             ->seeJson([
                 'text' => $did1->text
             ])->dontSeeJson([
@@ -110,7 +115,8 @@ class DidsTest extends TestCase
     public function it_tests_all_endpont_require_auth()
     {
         $user = factory(User::class)->create();
-        $did = factory(Did::class)->create(['user_id' => $user->id]);
+        $client = factory(Client::class)->create(['user_id' => $user->id]);
+        $did = factory(Did::class)->create(['user_id' => $user->id, 'client_id' => $client->id]);
 
         $response = $this->call('GET','/dids', [], [], [], [
             'HTTP_AUTHORIZATION' => 'Bearer ' . str_random(232)
@@ -138,8 +144,8 @@ class DidsTest extends TestCase
         $user  = factory(User::class)->create();
         $token = $user->createToken('Test Token')->accessToken;
 
-        $tag1  = factory(Tag::class)->create();
-        $tag2  = factory(Tag::class)->create();
+        $tag1  = factory(Tag::class)->create(['user_id' => $user->id]);
+        $tag2  = factory(Tag::class)->create(['user_id' => $user->id]);
 
         $text = str_random(10);
 
@@ -148,7 +154,7 @@ class DidsTest extends TestCase
                 'tags' => [$tag1->id, $tag2->id]
         ], ['Authorization' => 'Bearer ' . $token])->seeStatusCode(200);
 
-        $this->seeInDatabase('dids', ['user_id'=>1, 'text'=>$text]);
+        $this->seeInDatabase('dids', ['user_id'=>$user->id, 'text'=>$text]);
         $did = Did::where('text', $text)->firstOrFail();
         $this->seeInDatabase('did_tag', ['tag_id'=>$tag1->id, 'did_id'=>$did->id]);
         $this->seeInDatabase('did_tag', ['tag_id'=>$tag2->id, 'did_id'=>$did->id]);
@@ -162,9 +168,10 @@ class DidsTest extends TestCase
     {
 
         $user   = factory(User::class)->create();
+        $client = factory(Client::class)->create(['user_id' => $user->id]);
         $token  = $user->createToken('Test Token')->accessToken;
-        $did    = factory(Did::class)->create(['user_id' => 1]);
-        $tag    = factory(Tag::class)->create(['user_id' => 1]);
+        $did    = factory(Did::class)->create(['user_id' => $user->id, 'client_id'=> $client->id]);
+        $tag    = factory(Tag::class)->create(['user_id' => $user->id]);
 
         $did->tags()->attach([$tag->id]);
 
@@ -186,10 +193,11 @@ class DidsTest extends TestCase
 
         $user         = factory(User::class)->create();
         $user2        = factory(User::class)->create();
+        $client       = factory(Client::class)->create(['user_id' => $user->id]);
         $token        = $user->createToken('Test Token')->accessToken;
-        $user_did     = factory(Did::class)->create(['user_id' => $user->id]);
-        $not_user_did = factory(Did::class)->create(['user_id' => ($user2->id)]);
-        $tag          = factory(Tag::class)->create();
+        $user_did     = factory(Did::class)->create(['user_id' => $user->id, 'client_id'=> $client->id]);
+        $not_user_did = factory(Did::class)->create(['user_id' => $user2->id, 'client_id'=> $client->id]);
+        $tag          = factory(Tag::class)->create(['user_id' => $user->id]);
         $user_did->tags()->attach([$tag->id]);
 
         $this->get('/dids', ['Authorization' => 'Bearer ' . $token])->seeJson([
@@ -208,9 +216,10 @@ class DidsTest extends TestCase
     public function it_tests_dids_cursor()
     {
 
-        $user = factory(User::class)->create();
-        $token = $user->createToken('Test Token')->accessToken;
-        $dids = factory(Did::class, 50)->create(['user_id' => $user->id]);
+        $user   = factory(User::class)->create();
+        $token  = $user->createToken('Test Token')->accessToken;
+        $client = factory(Client::class)->create(['user_id' => $user->id]);
+        $dids   = factory(Did::class, 50)->create(['user_id' => $user->id, 'client_id'=> $client->id]);
 
         $response = $this->get('/dids', ['Authorization' => 'Bearer ' . $token])
             ->seeJson(['text' => $dids[49]->text])

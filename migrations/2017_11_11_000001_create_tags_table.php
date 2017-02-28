@@ -13,7 +13,7 @@ class CreateTagsTable extends Migration
     {
         Schema::create('tags', function (Blueprint $table) {
             $table->uuid('id');
-            $table->integer('user_id');
+            $table->uuid('user_id');
             $table->string('text');
             $table->timestamps();
 

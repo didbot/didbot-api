@@ -16,9 +16,15 @@
     "laravel"
   ],
   "license": "MIT",
+  "repositories": [
+    {
+      "type": "git",
+      "url": "https://github.com/benbjurstrom/passport"
+    }
+  ],
   "require": {
     "php": ">=7.0",
-    "laravel/passport": "^2.0",
+    "laravel/passport": "dev-master#d3f2ffda3908261086c3dc8733744ebb02c91740",
     "spatie/laravel-fractal": "^3.0",
     "webpatser/laravel-uuid": "^2.0"
   },

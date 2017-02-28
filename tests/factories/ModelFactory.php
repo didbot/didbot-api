@@ -29,15 +29,23 @@ $factory->define(User::class, function (Faker\Generator $faker) {
 
 $factory->define(Did::class, function (Faker\Generator $faker) {
     return [
-        'user_id' => 1,
         'text' => str_random(16),
-        'client_id' => 1
     ];
 });
 
 $factory->define(Tag::class, function (Faker\Generator $faker) {
     return [
-            'user_id' => 1,
             'text' => $faker->text($maxNbChars = 15)
+    ];
+});
+
+$factory->define(\Laravel\Passport\Client::class, function (Faker\Generator $faker) {
+    return [
+        'name' => $faker->text($maxNbChars = 15),
+        'secret' => str_random(40),
+        'redirect' => 'http://localhost',
+        'personal_access_client' => true,
+        'password_client' => false,
+        'revoked' => false,
     ];
 });

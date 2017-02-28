@@ -13,10 +13,10 @@ class CreateDidsTable extends Migration
     {
         Schema::create('dids', function (Blueprint $table) {
             $table->uuid('id');
-            $table->integer('user_id');
+            $table->uuid('user_id');
             $table->string('text');
             $table->string('geo')->nullable();
-            $table->integer('client_id');
+            $table->uuid('client_id');
             $table->timestamps();
 
             $table->primary('id');
