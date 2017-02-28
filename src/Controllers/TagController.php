@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Didbot\DidbotApi\Models\Tag;
 use Didbot\DidbotApi\CustomCursor as Cursor;
 use Didbot\DidbotApi\Transformers\TagTransformer;
+use DB;
 
 class TagController extends Controller
 {
@@ -50,12 +51,16 @@ class TagController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate($request, ['text' => 'required|max:255']);
+        $this->validate($request, ['text' => 'required|max:64|regex:/^[ a-zA-Z0-9_.-]*$/']);
 
-        $tag = new Tag();
-        $tag->user_id = $request->user()->id;
-        $tag->text = $request->text;
-        $tag->save();
+        // Check if the tag already exists and if so silently return it.
+        $tag = Tag::where(DB::raw('LOWER(text)'), strtolower($request->text))->first();
+        if(!$tag){
+            $tag = new Tag();
+            $tag->user_id = $request->user()->id;
+            $tag->text = $request->text;
+            $tag->save();
+        }
 
         $results = fractal()->item($tag, new TagTransformer());
         return response()->json($results);
@@ -100,7 +105,7 @@ class TagController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $this->validate($request, ['text' => 'required|max:255']);
+        $this->validate($request, ['text' => 'required|max:64|regex:/^[ a-zA-Z0-9_.-]*$/']);
 
         $tag = Tag()::findOrFail($id);
         $tag->text = $request->text;
