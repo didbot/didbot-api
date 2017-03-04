@@ -20,4 +20,12 @@ trait HasDids
     {
         return $this->hasMany('Didbot\DidbotApi\Models\Tag');
     }
+
+    /**
+     * Get the sources for the given user.
+     */
+    public function sources()
+    {
+        return $this->hasMany('Didbot\DidbotApi\Models\Source');
+    }
 }

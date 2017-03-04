@@ -12,20 +12,15 @@ class CreateDidsTable extends Migration
     public function up()
     {
         Schema::create('dids', function (Blueprint $table) {
-            $table->uuid('id');
-            $table->uuid('user_id');
-            $table->string('text');
+            $table->uuid('id')->primary();
+            $table->uuid('user_id')->index();
+            $table->string('text')->index();
             $table->string('geo')->nullable();
-            $table->uuid('client_id');
+            $table->uuid('source_id')->index();
             $table->timestamps();
 
-            $table->primary('id');
-            $table->index('user_id');
-            $table->index('client_id');
-            $table->index('created_at');
-
             $table->foreign('user_id')->references('id')->on('users');
-            $table->foreign('client_id')->references('id')->on('oauth_clients');
+            $table->foreign('source_id')->references('id')->on('sources');
         });
 
         // if using pgsql create a full text search index and the uuid timestamp function

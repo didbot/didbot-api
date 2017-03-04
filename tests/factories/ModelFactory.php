@@ -2,6 +2,7 @@
 
 use Didbot\DidbotApi\Models\Did;
 use Didbot\DidbotApi\Models\Tag;
+use Didbot\DidbotApi\Models\Source;
 use Didbot\DidbotApi\Test\Models\User;
 
 /*
@@ -47,5 +48,11 @@ $factory->define(\Laravel\Passport\Client::class, function (Faker\Generator $fak
         'personal_access_client' => true,
         'password_client' => false,
         'revoked' => false,
+    ];
+});
+
+$factory->define(Source::class, function (Faker\Generator $faker) {
+    return [
+        'name' => $faker->word,
     ];
 });

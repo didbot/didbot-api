@@ -12,7 +12,7 @@ class DidTransformer extends TransformerAbstract
      * @var array
      */
     protected $defaultIncludes = [
-        'tags', 'client'
+        'tags', 'source'
     ];
 
     /**
@@ -40,12 +40,12 @@ class DidTransformer extends TransformerAbstract
     }
 
     /**
-     * Include Client
+     * Include Source
 
      * @return \League\Fractal\Resource\Item
      */
-    public function includeClient(Did $did)
+    public function includeSource(Did $did)
     {
-        return $this->item($did->client, new ClientTransformer);
+        return $this->item($did->source, new SourceTransformer);
     }
 }

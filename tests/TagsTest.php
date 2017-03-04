@@ -4,6 +4,7 @@ namespace Didbot\DidbotApi\Test;
 use \Laravel\Passport\Client;
 use \Didbot\DidbotApi\Models\Did;
 use \Didbot\DidbotApi\Models\Tag;
+use \Didbot\DidbotApi\Models\Source;
 use \Didbot\DidbotApi\Test\Models\User;
 
 class TagsTest extends TestCase
@@ -56,7 +57,8 @@ class TagsTest extends TestCase
         $user  = factory(User::class)->create();
         $token = $user->createToken('Test Token')->accessToken;
         $client = factory(Client::class)->create(['user_id' => $user->id]);
-        $did = factory(Did::class)->create(['user_id' => $user->id, 'client_id'=> $client->id]);
+        $source = factory(Source::class)->create(['user_id' => $user->id, 'sourceable_id'=> $client->id, 'sourceable_type' => 'client']);
+        $did = factory(Did::class)->create(['user_id' => $user->id, 'source_id' => $source->id]);
         $tag = factory(Tag::class)->create(['user_id' => $user->id]);
 
         $did->tags()->attach([$tag->id]);

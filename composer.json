@@ -24,7 +24,7 @@
   ],
   "require": {
     "php": ">=7.0",
-    "laravel/passport": "dev-master#d3f2ffda3908261086c3dc8733744ebb02c91740",
+    "laravel/passport": "dev-master#ce34d7a1b4bb47d709a0ee62db3fc509657c4edb",
     "spatie/laravel-fractal": "^3.0",
     "webpatser/laravel-uuid": "^2.0"
   },

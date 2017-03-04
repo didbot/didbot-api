@@ -4,6 +4,7 @@ namespace Didbot\DidbotApi\Controllers;
 
 use Illuminate\Http\Request;
 use Didbot\DidbotApi\Models\Did;
+use Didbot\DidbotApi\Models\Source;
 use Didbot\DidbotApi\CustomCursor as Cursor;
 use Didbot\DidbotApi\Transformers\DidTransformer;
 use DB;
@@ -30,10 +31,10 @@ class DidController extends Controller
         $dids = $user->dids()
             ->fullTextSearchFilter($request->q, $user->id)
             ->tagFilter($request->tag_id)
-            ->clientFilter($request->client_id)
+            ->sourceFilter($request->source_id)
             ->cursorFilter($request->cursor)
             ->dateFilter($request->since, $request->until)
-            ->with(['tags', 'client'])
+            ->with(['tags', 'source'])
             ->orderBy(DB::raw('uuid_v1_timestamp(id)'), 'DESC')
             ->limit($limit)->get();
 
@@ -58,17 +59,31 @@ class DidController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
+     * @param  \Didbot\DidbotApi\Models\Source  $source
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, Source $source)
     {
-        $this->validate($request, ['text' => 'required|max:255']);
-        $this->validate($request, ['tags' => 'array']);
+        $this->validate($request, [
+            'text' => 'required|max:255',
+            'tags' => 'array'
+        ]);
+
+        if(count($request->tags) > 20) abort(422, 'This request has exceeded the maximum number of tags');
+
+        $this->validate($request, ['tags.*' => 'uuid|exists:tags,id'],
+            ['tags.*' => [
+                'uuid' => 'Tag identifier(s) must be in the 8-4-4-4-12 uuid format and match an existing tag identifier.'
+            ]
+        ]);
+
+        $user = $request->user();
+        $source = $source->getSourceFromCurrentUser($user);
 
         $did = new Did();
         $did->user_id = $request->user()->id;
         $did->text = $request->text;
-        $did->client_id = $request->user()->token()->client->id;
+        $did->source_id = $source->id;
         $did->save();
 
         if(is_array($request->tags) && !empty($request->tags)) $did->tags()->attach($request->tags);

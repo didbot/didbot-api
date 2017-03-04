@@ -43,11 +43,11 @@ class Did extends Model
     }
 
     /**
-     * The client that belongs to the did.
+     * The source the did belongs to.
      */
-    public function client()
+    public function source()
     {
-        return $this->belongsTo('Laravel\Passport\Client');
+        return $this->belongsTo('Didbot\DidbotApi\Models\Source');
     }
 
     /*
@@ -91,10 +91,10 @@ class Did extends Model
         }
     }
 
-    public function scopeClientFilter($query, $client_id)
+    public function scopeSourceFilter($query, $source_id)
     {
-        if(!empty($client_id)){
-            return $query->where('client_id', $client_id);
+        if(!empty($source_id)){
+            return $query->where('source_id', $source_id);
         }
     }
 

@@ -1,10 +1,10 @@
 <?php
 namespace Didbot\DidbotApi\Transformers;
 
-use \Laravel\Passport\Client;
+use Didbot\DidbotApi\Models\Source;
 use League\Fractal\TransformerAbstract;
 
-class ClientTransformer extends TransformerAbstract
+class SourceTransformer extends TransformerAbstract
 {
     /**
      * List of resources possible to include
@@ -17,14 +17,14 @@ class ClientTransformer extends TransformerAbstract
     /**
      * Turn this item object into a generic array
      *
-     * @param Client $client
+     * @param Source $source
      * @return array
      */
-    public function transform(Client $client)
+    public function transform(Source $source)
     {
         return [
-                'id' => $client->id,
-                'name' => $client->name,
+                'id' => $source->id,
+                'name' => $source->name,
         ];
     }
 
@@ -32,10 +32,10 @@ class ClientTransformer extends TransformerAbstract
      * Include Dids
      * @return \League\Fractal\Resource\Collection
      */
-    public function includeDids(Client $client)
+    public function includeDids(Source $source)
     {
-        $dids = $client->dids;
+        $dids = $source->dids;
 
-        return $this->collection($dids, new TagTransformer);
+        return $this->collection($dids, new DidTransformer);
     }
 }
