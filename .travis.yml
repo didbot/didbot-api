@@ -3,8 +3,8 @@ php:
   - '7.0'
 before_script:
   - composer install --prefer-source
-  - psql -c 'create database didbot_test;' -U postgres
-  - psql -c 'create extension postgis;' -U postgres
+  - psql -U postgres -c 'create database didbot_test;'
+  - psql -U postgres didbot_test -c 'create extension postgis;'
 script: phpunit
 services:
   - postgresql
