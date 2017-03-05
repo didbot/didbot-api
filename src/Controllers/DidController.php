@@ -2,12 +2,15 @@
 
 namespace Didbot\DidbotApi\Controllers;
 
+use Didbot\DidbotApi\Services\LocationService;
 use Illuminate\Http\Request;
 use Didbot\DidbotApi\Models\Did;
 use Didbot\DidbotApi\Models\Source;
 use Didbot\DidbotApi\CustomCursor as Cursor;
 use Didbot\DidbotApi\Transformers\DidTransformer;
+use Phaza\LaravelPostgis\Geometries\Point;
 use DB;
+use phpDocumentor\Reflection\Location;
 
 class DidController extends Controller
 {
@@ -60,13 +63,15 @@ class DidController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \Didbot\DidbotApi\Models\Source  $source
+     * @param  \Didbot\DidbotApi\Services\LocationService  $source
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request, Source $source)
+    public function store(Request $request, Source $source, LocationService $loc_service)
     {
         $this->validate($request, [
             'text' => 'required|max:255',
-            'tags' => 'array'
+            'tags' => 'array',
+            'geo' => 'geo'
         ]);
 
         if(count($request->tags) > 20) abort(422, 'This request has exceeded the maximum number of tags');
@@ -79,11 +84,14 @@ class DidController extends Controller
 
         $user = $request->user();
         $source = $source->getSourceFromCurrentUser($user);
+        $geo = $loc_service->getLocationFromRequest($request);
 
         $did = new Did();
-        $did->user_id = $request->user()->id;
-        $did->text = $request->text;
+        $did->user_id   = $request->user()->id;
+        $did->text      = $request->text;
         $did->source_id = $source->id;
+        $did->geo       = $geo;
+        $did->ip_address = $request->ip();
         $did->save();
 
         if(is_array($request->tags) && !empty($request->tags)) $did->tags()->attach($request->tags);

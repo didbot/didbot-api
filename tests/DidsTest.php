@@ -157,7 +157,8 @@ class DidsTest extends TestCase
 
         $this->postJson('/dids', [
                 'text' => $text,
-                'tags' => [$tag1->id, $tag2->id]
+                'tags' => [$tag1->id, $tag2->id],
+                'geo' =>  '34.073823, -118.239975'
         ], ['Authorization' => 'Bearer ' . $token])->seeStatusCode(200);
 
         $this->seeInDatabase('dids', ['user_id'=>$user->id, 'text'=>$text]);

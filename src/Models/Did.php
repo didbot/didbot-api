@@ -2,12 +2,17 @@
 namespace Didbot\DidbotApi\Models;
 use Illuminate\Database\Eloquent\Model;
 use Didbot\DidbotApi\Traits\Uuids;
+use Phaza\LaravelPostgis\Eloquent\PostgisTrait;
 use Carbon\Carbon;
 use DB;
 
 class Did extends Model
 {
-    use Uuids;
+    use Uuids, PostgisTrait;
+
+    protected $postgisFields = [
+        'geo',
+    ];
 
     protected $hidden = [
         'searchable',

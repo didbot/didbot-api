@@ -11,12 +11,17 @@ class CreateDidsTable extends Migration
      */
     public function up()
     {
+        $postgis = DB::table('pg_proc')->where('proname', 'postgis_full_version')->first();
+        if(!$postgis) dd('The postgis extension is not installed. Run `CREATE EXTENSION postgis;` to install');
+
         Schema::create('dids', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('user_id')->index();
             $table->string('text')->index();
-            $table->string('geo')->nullable();
             $table->uuid('source_id')->index();
+            $table->point('geo')->nullable();
+            $table->json('location')->nullable();
+            $table->ipAddress('ip_address')->index();
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users');

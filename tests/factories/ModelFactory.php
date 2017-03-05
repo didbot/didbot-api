@@ -31,6 +31,8 @@ $factory->define(User::class, function (Faker\Generator $faker) {
 $factory->define(Did::class, function (Faker\Generator $faker) {
     return [
         'text' => str_random(16),
+        'geo' => new \Phaza\LaravelPostgis\Geometries\Point(34.073823, -118.239975), // Dodger Stadium
+        'ip_address' => '127.0.0.1'
     ];
 });
 

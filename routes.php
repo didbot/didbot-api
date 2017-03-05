@@ -8,5 +8,6 @@ Route::group([
 
     Route::resource('dids', 'DidController');
     Route::resource('tags', 'TagController');
+    Route::resource('sources', 'SourceController');
 
 });

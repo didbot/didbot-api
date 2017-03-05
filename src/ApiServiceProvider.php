@@ -40,6 +40,13 @@ class ApiServiceProvider extends ServiceProvider
 
         });
 
+        Validator::extend('geo', function ($attribute, $value, $parameters, $validator) {
+
+            return (preg_match('/^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/',
+                    $value) === 1);
+
+        });
+
 
         // Custom names for the Polymorphic relation on the Didbot\DidbotApi\Models\Source model
         Relation::morphMap([
@@ -55,5 +62,6 @@ class ApiServiceProvider extends ServiceProvider
     {
         App::register(\Laravel\Passport\PassportServiceProvider::class);
         App::register(\Spatie\Fractal\FractalServiceProvider::class);
+        App::register(\Phaza\LaravelPostgis\DatabaseServiceProvider::class);
     }
 }
