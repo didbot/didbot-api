@@ -4,6 +4,7 @@ php:
 before_script:
   - composer install --prefer-source
   - psql -c 'create database didbot_test;' -U postgres
+  - psql -c 'create extension postgis;' -U postgres
 script: phpunit
 services:
   - postgresql
