@@ -22,7 +22,8 @@ class ApiServiceProvider extends ServiceProvider
         }
 
         $this->loadMigrationsFrom(__DIR__ . '/../migrations');
-        $router->middleware('ReturnJson', '\Didbot\DidbotApi\Middleware\ReturnJson');
+        $router->aliasMiddleware('didbot.xml-http-request', \Didbot\DidbotApi\Middleware\XmlHttpRequest::class);
+        $router->aliasMiddleware('didbot.throttle', \Didbot\DidbotApi\Middleware\ThrottleRequest::class);
 
         Passport::routes();
 

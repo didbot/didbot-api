@@ -1,8 +1,7 @@
 <?php
-use Didbot\DidbotApi\Middleware\XmlHttpRequest;
 
 Route::group([
-    'middleware' => ['auth:api', XmlHttpRequest::class],
+    'middleware' => ['auth:api', 'didbot.xml-http-request', 'didbot.throttle:450,15'],
     'namespace' => 'Didbot\DidbotApi\Controllers'
 ], function () {
 
