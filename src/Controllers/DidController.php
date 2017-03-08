@@ -63,7 +63,7 @@ class DidController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \Didbot\DidbotApi\Models\Source  $source
-     * @param  \Didbot\DidbotApi\Services\LocationService  $source
+     * @param  \Didbot\DidbotApi\Services\LocationService  $loc_service
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request, Source $source, LocationService $loc_service)

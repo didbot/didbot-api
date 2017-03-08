@@ -32,6 +32,46 @@ class TagsTest extends TestCase
     /**
      * @test
      */
+    public function it_tests_the_get_tags_endpoint_search()
+    {
+        $user  = factory(User::class)->create();
+        $tag   = factory(Tag::class)->create(['text'=>'Random tag', 'user_id' => $user->id]);
+        $token = $user->createToken('Test Token')->accessToken;
+
+        $this->get('/tags?q=ran', [
+            'Authorization' => 'Bearer ' . $token,
+            'Accept' => 'application/json',
+            'content-type' => 'application/json',
+        ])->seeJson([
+            'id' => $tag->id
+        ]);
+
+    }
+
+    /**
+     * @test
+     */
+    public function it_tests_the_get_tags_endpoint_cursor()
+    {
+        $user  = factory(User::class)->create();
+        $tags   = factory(Tag::class, 2)->create(['user_id' => $user->id]);
+        $token = $user->createToken('Test Token')->accessToken;
+
+        $this->get('/tags?cursor='. $tags[1]->id, [
+            'Authorization' => 'Bearer ' . $token,
+            'Accept' => 'application/json',
+            'content-type' => 'application/json',
+        ])->seeJson([
+            'id' => $tags[0]->id
+        ])->dontSeeJson([
+            'id' => $tags[1]->id
+        ]);
+
+    }
+
+    /**
+     * @test
+     */
     public function it_tests_the_post_tags_endpoint()
     {
 

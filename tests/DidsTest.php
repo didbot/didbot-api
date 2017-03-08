@@ -1,6 +1,7 @@
 <?php
 namespace Didbot\DidbotApi\Test;
 
+use Carbon\Carbon;
 use Didbot\DidbotApi\Models\Did;
 use Didbot\DidbotApi\Models\Tag;
 use Didbot\DidbotApi\Models\Source;
@@ -57,6 +58,53 @@ class DidsTest extends TestCase
                 ],
             ],
         ]);
+    }
+
+    /**
+     * @test
+     */
+    public function it_tests_the_get_dids_endpoint_filters()
+    {
+        $user = factory(User::class)->create();
+        $token = $user->createToken('Test Token')->accessToken;
+        $client = factory(Client::class)->create(['user_id' => $user->id]);
+        $source = factory(Source::class)->create(['user_id' => $user->id, 'sourceable_id'=> $client->id, 'sourceable_type' => 'client']);
+        $did = factory(Did::class)->create(['text'=>'Random text is present here', 'user_id' => $user->id, 'source_id' => $source->id]);
+        $tag = factory(Tag::class)->create(['user_id' => $user->id]);
+        $did->tags()->attach([$tag->id]);
+
+        // text search partial
+        $this->get('/dids?q=ran', ['Authorization' => 'Bearer ' . $token ])
+            ->seeJson([
+                'id' => $did->id
+            ]);
+
+        // full text search
+        $this->get('/dids?q=random+present', ['Authorization' => 'Bearer ' . $token ])
+            ->seeJson([
+                'id' => $did->id
+            ]);
+
+        // no match
+        $this->get('/dids?q=some+other+search', ['Authorization' => 'Bearer ' . $token ])
+            ->dontSeeJson([
+                'id' => $did->id
+            ]);
+
+        // empty q should return all dids
+        $this->get('/dids?q=', ['Authorization' => 'Bearer ' . $token ])
+            ->seeJson([
+                'id' => $did->id
+            ]);
+
+        // created_at search
+        $since = urlencode(Carbon::today()->toIso8601String());
+        $until = urlencode(Carbon::today()->endOfDay()->toIso8601String());
+
+        $this->get('/dids?since='. $since . '&until=' . $until, ['Authorization' => 'Bearer ' . $token ])
+            ->seeJson([
+                'id' => $did->id
+            ]);
     }
 
     /**

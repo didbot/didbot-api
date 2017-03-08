@@ -24,7 +24,7 @@ class TagController extends Controller
         $tags = $request->user()->tags()
             ->searchFilter($request->q)
             ->cursorFilter($request->cursor)
-            ->orderBy('id', 'DESC')->limit($limit)->get();
+            ->orderBy(DB::raw('uuid_v1_timestamp(id)'), 'DESC')->limit($limit)->get();
 
         $results = fractal()
             ->collection($tags, new TagTransformer())

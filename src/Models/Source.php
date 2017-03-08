@@ -4,6 +4,7 @@ namespace Didbot\DidbotApi\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Didbot\DidbotApi\Traits\Uuids;
+use DB;
 
 class Source extends Model
 {

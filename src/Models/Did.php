@@ -65,13 +65,14 @@ class Did extends Model
 
     public function scopeFullTextSearchFilter($query, $q, $user_id)
     {
-
-        // fall back to basic search if not using pgsql driver or $q is a single word
-        if(DB::connection()->getDriverName() != 'pgsql' || !strpos($q, ' ')){
-            return $this->scopeSearchFilter($query, $q);
-        }
-
         if(!empty($q)){
+
+            // fall back to basic search if not using pgsql driver or $q is a single word
+            if(DB::connection()->getDriverName() != 'pgsql' || !strpos($q, ' ')){
+                return $this->scopeSearchFilter($query, $q);
+            }
+
+
             return $query->whereRaw('id IN (
             		SELECT id FROM dids 
             		WHERE searchable @@ plainto_tsquery(?) AND user_id = ?)',
