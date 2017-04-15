@@ -24,11 +24,15 @@ class DidController extends Controller
     public function index(Request $request)
     {
         $limit = 20;
+        $prev = null;
         $user = $request->user();
 
         $this->validate($request, [
-            'since' => 'iso8601',
-            'until' => 'iso8601'
+            'since'     => 'iso8601',
+            'until'     => 'iso8601',
+            'cursor'    => 'uuid',
+            'tag_id'    => 'uuid',
+            'source_id' => 'uuid',
             ]);
 
         $dids = $user->dids()
@@ -41,9 +45,23 @@ class DidController extends Controller
             ->orderBy(DB::raw('uuid_v1_timestamp(id)'), 'DESC')
             ->limit($limit)->get();
 
+        // if the cursor is being passed in then we need to obtain the previous id.
+        if(!empty($request->cursor)){
+            $dids_prev = $user->dids()
+                ->fullTextSearchFilter($request->q, $user->id)
+                ->tagFilter($request->tag_id)
+                ->sourceFilter($request->source_id)
+                ->prevFilter($request->cursor)
+                ->dateFilter($request->since, $request->until)
+                ->orderBy(DB::raw('uuid_v1_timestamp(id)'), 'ASC')
+                ->limit($limit)->get();
+
+            if($dids_prev->count() == $limit) $prev = $dids_prev->last()->id;
+        }
+
         $results = fractal()
             ->collection($dids, new DidTransformer())
-            ->withCursor(new Cursor($request->cursor, $request->prev, $dids, $limit));
+            ->withCursor(new Cursor($request->cursor, $prev, $dids, $limit));
 
         return response()->json($results);
     }
@@ -91,7 +109,6 @@ class DidController extends Controller
         $did->text      = $request->text;
         $did->source_id = $source->id;
         $did->geo       = $geo;
-        $did->ip_address = $request->ip();
         $did->save();
 
         if(is_array($request->tags) && !empty($request->tags)) $did->tags()->attach($request->tags);
@@ -109,6 +126,9 @@ class DidController extends Controller
      */
     public function show(Request $request, $id)
     {
+        $this->validate($request, [
+            'id' => 'uuid'
+        ]);
 
         try{
             $did = $request->user()->dids()->where('id', $id)->with(['tags', 'client'])->firstOrFail();
@@ -152,6 +172,10 @@ class DidController extends Controller
      */
     public function destroy(Request $request, $id)
     {
+        $this->validate($request, [
+            'id' => 'uuid'
+        ]);
+
         $did = Did::where(['id' => $id, 'user_id' => $request->user()->id])->firstOrFail();
 
         // Detach all tags from the did

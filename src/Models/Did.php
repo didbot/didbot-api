@@ -67,8 +67,8 @@ class Did extends Model
     {
         if(!empty($q)){
 
-            // fall back to basic search if not using pgsql driver or $q is a single word
-            if(DB::connection()->getDriverName() != 'pgsql' || !strpos($q, ' ')){
+            // fall back to basic search if $q is a single word
+            if(!strpos($q, ' ')){
                 return $this->scopeSearchFilter($query, $q);
             }
 
@@ -108,6 +108,13 @@ class Did extends Model
     {
         if(!empty($cursor)){
             return $query->whereRaw('uuid_v1_timestamp(id) < uuid_v1_timestamp(?)', [$cursor]);
+        }
+    }
+
+    public function scopePrevFilter($query, $cursor)
+    {
+        if(!empty($cursor)){
+            return $query->whereRaw('uuid_v1_timestamp(id) > uuid_v1_timestamp(?)', [$cursor]);
         }
     }
 

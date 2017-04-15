@@ -311,8 +311,7 @@ class DidsTest extends TestCase
              ->decodeResponseJson();
 
         $this->get('/dids?'
-                .'cursor=' . $response['meta']['cursor']['next']
-                .'&prev='   . $response['meta']['cursor']['current'],
+                .'cursor=' . $response['meta']['cursor']['next'],
                 [
                         'Authorization' => 'Bearer ' . $token,
                         'Accept' => 'application/json',
