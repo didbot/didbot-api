@@ -21,9 +21,9 @@ class CreateDidsTable extends Migration
             $table->uuid('source_id')->index();
             $table->point('geo')->nullable();
             $table->json('location')->nullable();
-            $table->ipAddress('ip_address')->index();
             $table->timestamps();
 
+            $table->index('created_at');
             $table->foreign('user_id')->references('id')->on('users');
             $table->foreign('source_id')->references('id')->on('sources');
         });

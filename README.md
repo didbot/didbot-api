@@ -30,3 +30,7 @@ class User
     // ...
 }
 ```
+
+
+## Database
+To take advantage of full text search the recommended database is postgresql.

@@ -12,8 +12,8 @@ class CreateDidTagTable extends Migration
     public function up()
     {
         Schema::create('did_tag', function (Blueprint $table) {
-            $table->uuid('did_id');
-            $table->uuid('tag_id');
+            $table->uuid('did_id')->index();
+            $table->uuid('tag_id')->index();
             $table->timestamps();
 
             $table->foreign('did_id')->references('id')->on('dids');
